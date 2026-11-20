@@ -46,13 +46,21 @@ body{font-family:'PR',sans-serif;color:#14161c;touch-action:none;user-select:non
 video::-webkit-media-controls,video::-webkit-media-controls-panel,video::-webkit-media-controls-overlay-play-button,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-play-button,video::-webkit-media-controls-enclosure{display:none!important;opacity:0!important;-webkit-appearance:none}
 video{pointer-events:none}
 #motionStage video,#motionStage video.on{background:#0e0f12}
+#motionStage canvas.mc,#motionStage canvas.mc.on{background:#0e0f12}
 #motionStage video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease,left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
+#motionStage canvas.mc{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease,left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
 #motionStage.sw video{transition:left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
+#motionStage.sw canvas.mc{transition:left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
+#motionStage video,#motionStage video.on,#motionStage video.prev,#motionStage.shrink video.on,#motionStage.sw video,#motionStage.sw video.on{left:0!important;top:0!important;width:2px!important;height:2px!important;opacity:.02!important;transition:none!important;z-index:0!important}
+#motionStage canvas.mc{display:block}#motionStage.fail canvas.mc{display:none}
 #motionStage.shrink{background:transparent;transition:background .5s ease,opacity .6s ease}
 #motionStage.shrink .mtxt,#motionStage.shrink .mlab{opacity:0;transition:opacity .4s}
 #motionStage.shrink video.on{left:26.1%;top:17.84%;width:65%;height:56.1%}
+#motionStage.shrink canvas.mc.on{left:26.1%;top:17.84%;width:65%;height:56.1%}
 #motionStage video.on{opacity:1;z-index:2}
+#motionStage canvas.mc.on{opacity:1;z-index:2}
 #motionStage video.prev{opacity:1;z-index:1;transition:none}
+#motionStage canvas.mc.prev{opacity:1;z-index:1;transition:none}
 .mtxt{z-index:5;position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;text-shadow:0 2px 36px rgba(20,22,28,.28);font-family:'Bodoni Moda',serif;font-weight:500;line-height:.94;pointer-events:none;overflow:hidden}
 .mtxt{transition:opacity .5s}#motionStage.card .mtxt,#motionStage.card #mcount{opacity:0}
 .mw{font-size:27cqw;text-transform:uppercase;white-space:nowrap;letter-spacing:-.03em;padding-left:-.03em;opacity:.38;transition:opacity .5s}
@@ -194,6 +202,8 @@ function tear(){
 // ---- motion stage: LIA -> OL -> LET -> quick card flip, text stays static ----
 const mStage=document.getElementById('motionStage'),mVids=[...mStage.querySelectorAll('video')];
 mVids.forEach(v=>v.load());
+const mCvs=mVids.map(v=>{const c=document.createElement('canvas');c.className='mc';c.width=540;c.height=830;v.after(c);new MutationObserver(()=>{c.className='mc '+v.className.replace(/\bmc\b/,'')}).observe(v,{attributes:true,attributeFilter:['class']});return c});
+(function loop(){mVids.forEach((v,i)=>{if((v.classList.contains('on')||v.classList.contains('prev'))&&v.readyState>=2&&v.videoWidth){const c=mCvs[i];if(c.width!==v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight}c.getContext('2d').drawImage(v,0,0,c.width,c.height)}});requestAnimationFrame(loop)})();
 let mTimer=0,mDone=false;
 const mWords=[0,1,2].map(i=>document.getElementById('mw'+i));
 function mPhase(k){
@@ -203,6 +213,7 @@ function mPhase(k){
 }
 function runMotion(){
   mPhase(0);
+  setTimeout(()=>{if(!mDone&&mVids[0].currentTime<.05){mStage.classList.add('fail');endMotion()}},2000);
   mTimer=setTimeout(()=>{mPhase(1);mTimer=setTimeout(()=>{mPhase(2);mTimer=setTimeout(()=>{
     mTimer=setTimeout(()=>{const rv=mVids[3];rv.currentTime=0;const go=()=>{mStage.classList.add('sw');rv.classList.add('on');mVids[2].classList.remove('on');endMotion()};const pr=rv.play();(pr&&pr.then)?pr.then(()=>setTimeout(go,60)).catch(go):go()},2180);
   },0)},3400)},2500);
