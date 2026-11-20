@@ -43,6 +43,8 @@ body{font-family:'PR',sans-serif;color:#14161c;touch-action:none;user-select:non
 #motionStage{position:absolute;inset:0;z-index:4;background:#fff;opacity:0;pointer-events:none;transition:opacity .9s ease}
 #motionStage.on{opacity:1;pointer-events:auto}
 #motionStage.out{opacity:0;pointer-events:none;transition:opacity 1s ease}
+video::-webkit-media-controls,video::-webkit-media-controls-panel,video::-webkit-media-controls-overlay-play-button,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-play-button,video::-webkit-media-controls-enclosure{display:none!important;opacity:0!important;-webkit-appearance:none}
+video{pointer-events:none}
 #motionStage video,#motionStage video.on{background:#0e0f12}
 #motionStage video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease,left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
 #motionStage.sw video{transition:left 1.15s cubic-bezier(.76,0,.18,1),top 1.15s cubic-bezier(.76,0,.18,1),width 1.15s cubic-bezier(.76,0,.18,1),height 1.15s cubic-bezier(.76,0,.18,1)}
@@ -137,10 +139,10 @@ body.open .info div{animation:rev 1s cubic-bezier(.2,.7,.2,1) forwards}
 <audio id="bgm" src="bgm.mp3" preload="auto"></audio>
 <audio id="sfx" src="tear.mp3" preload="auto"></audio>
 <div id="motionStage">
-  <video muted playsinline preload="auto"><source src="lia.mp4" type="video/mp4"><source src="lia.webm" type="video/webm"></video>
-  <video muted playsinline preload="auto"><source src="ol.mp4" type="video/mp4"><source src="ol.webm" type="video/webm"></video>
-  <video muted playsinline preload="auto"><source src="let.mp4" type="video/mp4"><source src="let.webm" type="video/webm"></video>
-    <video muted playsinline preload="auto"><source src="let_rev.mp4" type="video/mp4"><source src="let_rev.webm" type="video/webm"></video>
+  <video muted playsinline webkit-playsinline x5-playsinline disablepictureinpicture disableremoteplayback controlslist="nodownload noplaybackrate nofullscreen" preload="auto"><source src="lia.mp4" type="video/mp4"><source src="lia.webm" type="video/webm"></video>
+  <video muted playsinline webkit-playsinline x5-playsinline disablepictureinpicture disableremoteplayback controlslist="nodownload noplaybackrate nofullscreen" preload="auto"><source src="ol.mp4" type="video/mp4"><source src="ol.webm" type="video/webm"></video>
+  <video muted playsinline webkit-playsinline x5-playsinline disablepictureinpicture disableremoteplayback controlslist="nodownload noplaybackrate nofullscreen" preload="auto"><source src="let.mp4" type="video/mp4"><source src="let.webm" type="video/webm"></video>
+    <video muted playsinline webkit-playsinline x5-playsinline disablepictureinpicture disableremoteplayback controlslist="nodownload noplaybackrate nofullscreen" preload="auto"><source src="let_rev.mp4" type="video/mp4"><source src="let_rev.webm" type="video/webm"></video>
   <div class="mtxt"><div class="mw" id="mw0">LIA</div><div class="mw" id="mw1">OL</div><div class="mw" id="mw2">LET</div></div>
 </div>
 
@@ -179,6 +181,7 @@ tw.addEventListener('click',()=>tear());
 
 function tear(){
   if(opened)return;opened=true;try{const a=document.getElementById('bgm');a.volume=.7;a.play().catch(()=>{});const s=document.getElementById('sfx');s.volume=1;s.play().catch(()=>{})}catch(_){}
+  try{mVids.forEach(v=>{v.muted=true;const p=v.play();if(p&&p.then)p.then(()=>{if(!v.classList.contains('on')){v.pause();try{v.currentTime=0}catch(_){}}}).catch(()=>{})})}catch(_){}
   tStub.classList.remove('wig');
   try{navigator.vibrate&&navigator.vibrate([18,30,12])}catch(_){}
   tStub.style.transition='transform 1.15s cubic-bezier(.5,0,.9,.6),opacity 1s ease .1s';
